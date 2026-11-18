@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>taskcli</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <p class="eyebrow">GO TASK MANAGER</p>
+      <h1>Mis tareas</h1>
+      <p class="subtitle">Organiza tu aprendizaje, una tarea a la vez.</p>
+    </header>
+
+    {{if .Error}}
+    <div class="alert" role="alert">{{.Error}}</div>
+    {{end}}
+
+    <form class="new-task" method="post" action="/tasks">
+      <label for="title">Nueva tarea</label>
+      <div class="input-row">
+        <input id="title" name="title" type="text" placeholder="¿Qué necesitas hacer?" required>
+        <button type="submit">Agregar</button>
+      </div>
+    </form>
+
+    <section class="task-list" aria-labelledby="tasks-heading">
+      <div class="section-heading">
+        <h2 id="tasks-heading">Tareas</h2>
+        <span>{{len .Tasks}}</span>
+      </div>
+      {{if .Tasks}}
+        {{range .Tasks}}
+        <article class="task {{if .Completed}}completed{{end}}">
+          <div class="task-content">
+            <span class="status-dot" aria-hidden="true"></span>
+            <div>
+              <h3>{{.Title}}</h3>
+              <small>{{.ID}}</small>
+            </div>
+          </div>
+          <div class="actions">
+            <details class="edit-menu">
+              <summary>Editar</summary>
+              <div class="popover">
+                <form method="post" action="/tasks/{{.ID}}/edit">
+                  <label for="edit-{{.ID}}">Título</label>
+                  <input id="edit-{{.ID}}" name="title" value="{{.Title}}" required>
+                  <button class="secondary" type="submit">Guardar</button>
+                </form>
+              </div>
+            </details>
+            {{if not .Completed}}
+            <form method="post" action="/tasks/{{.ID}}/complete">
+              <button class="secondary" type="submit">Completar</button>
+            </form>
+            {{end}}
+            <form method="post" action="/tasks/{{.ID}}/delete">
+              <button class="danger" type="submit">Eliminar</button>
+            </form>
+          </div>
+          <details class="conversation">
+            <summary>
+              Comentarios
+              {{if .Comments}}<span>{{len .Comments}}</span>{{else}}<span>0</span>{{end}}
+            </summary>
+            <div class="thread">
+              {{if .Comments}}
+                {{range .Comments}}
+                <div class="comment">
+                  <div class="comment-meta">
+                    <strong>Comentario</strong>
+                    <time>{{.CreatedAt.Format "02 Jan 2006 15:04"}}</time>
+                  </div>
+                  <p>{{.Body}}</p>
+                </div>
+                {{end}}
+              {{else}}
+                <p class="empty-thread">Aún no hay comentarios.</p>
+              {{end}}
+              <form class="comment-form" method="post" action="/tasks/{{.ID}}/comments">
+                <label for="comment-{{.ID}}">Añadir comentario</label>
+                <textarea id="comment-{{.ID}}" name="comment" rows="3" placeholder="Escribe una respuesta..." required></textarea>
+                <button type="submit">Enviar comentario</button>
+              </form>
+            </div>
+          </details>
+        </article>
+        {{end}}
+      {{else}}
+        <p class="empty">Todavía no tienes tareas. ¡Agrega la primera!</p>
+      {{end}}
+    </section>
+  </main>
+</body>
+</html>

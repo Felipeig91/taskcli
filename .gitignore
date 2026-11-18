@@ -1,0 +1,10 @@
+# Binario local de Go
+/taskcli
+*.exe
+
+# Datos locales de la aplicacion
+/.taskcli/
+
+# Archivos temporales y cache
+/tmp/
+.DS_Store
